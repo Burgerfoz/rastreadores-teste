@@ -1,0 +1,19 @@
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.card {
+    border-radius: 8px;
+    border: none;
+}
+.table td {
+    vertical-align: middle;
+}
+/* Importante para o modal de arquivo não quebrar layout */
+pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    max-height: 500px;
+    overflow-y: auto;
+}

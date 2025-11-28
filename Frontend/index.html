@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br" ng-app="rastreadoresApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Rastreadores</title>
+    
+    <link href="lib/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body ng-controller="RastreadoresCtrl" class="bg-light">
+
+    <div class="container-fluid py-4">
+        
+        <div class="d-flex justify-content-end mb-2">
+            <span class="badge" 
+                  ng-class="{
+                      'bg-warning text-dark': statusServidor === 0,
+                      'bg-success': statusServidor === 1,
+                      'bg-danger': statusServidor === 2
+                  }">
+                Status API: 
+                <span ng-if="statusServidor === 0">Verificando... ⏳</span>
+                <span ng-if="statusServidor === 1">ONLINE 🟢</span>
+                <span ng-if="statusServidor === 2">OFFLINE 🔴</span>
+            </span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Configuração</h5>
+                    </div>
+                    <div class="card-body">
+                        <form ng-submit="salvarRastreador()">
+                            <div class="mb-3">
+                                <label class="form-label">Nome *</label>
+                                <input type="text" class="form-control" ng-model="form.nome" required placeholder="Ex: Skycop">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Endpoint (URL) *</label>
+                                <input type="url" class="form-control" ng-model="form.endpoint" required placeholder="https://api...">
+                            </div>
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Login</label>
+                                    <input type="text" class="form-control" ng-model="form.login">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label class="form-label">Senha</label>
+                                    <input type="password" class="form-control" ng-model="form.senha">
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Token</label>
+                                <input type="text" class="form-control" ng-model="form.token">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">E-mails (separados por vírgula)</label>
+                                <input type="text" class="form-control" ng-model="form.emailsStr" placeholder="ex: teste@email.com">
+                                <small class="text-muted">Padrão: giovane@sistemagti.com.br</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" ng-model="form.observacoes" rows="2"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100">
+                                <span ng-if="!editandoIndex && editandoIndex !== 0">Adicionar Rastreador</span>
+                                <span ng-if="editandoIndex !== null && editandoIndex >= 0">Atualizar Rastreador</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2" ng-if="editandoIndex !== null" ng-click="cancelarEdicao()">
+                                Cancelar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Rastreadores Configurados</h5>
+                        <button class="btn btn-sm btn-outline-info" ng-click="carregarExemplos()">Carregar Exemplos</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Info</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="r in rastreadores track by $index">
+                                        <td style="width: 40%">
+                                            <strong>{{r.nome}}</strong><br>
+                                            <small class="text-muted text-truncate d-block" style="max-width: 250px;">{{r.endpoint}}</small>
+                                        </td>
+                                        <td style="width: 25%">
+                                            <small>Reqs: <strong>{{r.contadorRequisicoes || 0}}</strong></small><br>
+                                            <small class="text-muted" ng-if="r.ultimaRequisicao">{{r.ultimaRequisicao | date:'dd/MM HH:mm:ss'}}</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button class="btn btn-primary" ng-click="requisitar(r)" ng-disabled="r.loading">
+                                                    {{ r.loading ? 'Processando...' : 'Requisitar' }}
+                                                </button>
+                                                
+                                                <button class="btn btn-outline-secondary" 
+                                                        ng-disabled="!r.ultimoArquivo"
+                                                        ng-click="visualizarArquivo(r, false)"
+                                                        title="Ver Arquivo">
+                                                    📄
+                                                </button>
+
+                                                <button class="btn btn-outline-danger" 
+                                                        ng-disabled="!r.ultimoErro"
+                                                        ng-click="visualizarArquivo(r, true)"
+                                                        title="Ver Erro">
+                                                    ⚠️
+                                                </button>
+                                                
+                                                <button class="btn btn-outline-primary" ng-click="editar($index)">✏️</button>
+                                                <button class="btn btn-outline-danger" ng-click="excluir($index)">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr ng-if="rastreadores.length === 0">
+                                        <td colspan="3" class="text-center py-4 text-muted">Nenhum rastreador configurado.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalArquivo" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Visualizador de Arquivo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;">{{modalConteudo}}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="lib/angular.min.js"></script>
+    <script src="lib/bootstrap.bundle.min.js"></script>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>

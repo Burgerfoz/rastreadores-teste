@@ -1,0 +1,16 @@
+# Ignorar pastas de build pesadas
+bin/
+obj/
+.vs/
+.vscode/
+
+# Ignorar arquivos de sistema
+Thumbs.db
+.DS_Store
+
+# --- ESTRATÉGIA DE SEGURANÇA ---
+# Ignorar o arquivo com a senha REAL (Development)
+appsettings.Development.json
+
+# Permitir subir o arquivo de EXEMPLO (Padrão)
+!appsettings.json

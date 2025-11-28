@@ -1,16 +1,20 @@
-# Ignorar pastas de build pesadas
+# Ignorar pastas de compilação do .NET
 bin/
 obj/
 .vs/
 .vscode/
 
-# Ignorar arquivos de sistema
-Thumbs.db
-.DS_Store
-
-# --- ESTRATÉGIA DE SEGURANÇA ---
-# Ignorar o arquivo com a senha REAL (Development)
+# Ignorar arquivos de usuário e configuração com senhas
+*.user
+*.suo
 appsettings.Development.json
 
-# Permitir subir o arquivo de EXEMPLO (Padrão)
+# Ignorar logs dentro da pasta Backend
+Backend/Rastreadores/**/*.txt
+
+# Permitir subir o arquivo de exemplo (sem senha)
 !appsettings.json
+
+# Arquivos de sistema
+Thumbs.db
+.DS_Store

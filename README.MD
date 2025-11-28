@@ -52,6 +52,8 @@ Envio de E-mail: Integração via SMTP (Gmail) com anexo do log gerado.
 
 Tratamento de Erros: Exibição de falhas e bloqueio de botões quando não há dados.
 
+Autor: Emerson Rodrigo Alves
+
 Status do Projeto: Aguardando avaliação
 
 

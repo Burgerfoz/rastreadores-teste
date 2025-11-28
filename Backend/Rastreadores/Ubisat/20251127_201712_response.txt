@@ -1,1 +1,0 @@
-{"imei":863844056480178,"nombre":"UBISAT AAIU190","latitud":-25.482939,"longitud":-54.720433,"velocidad":5,"fecha_hora":"2025-11-27 20:17:03"}

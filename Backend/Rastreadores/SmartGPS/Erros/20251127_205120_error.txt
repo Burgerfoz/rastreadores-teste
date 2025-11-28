@@ -1,1 +1,0 @@
-Exception: Este host não é conhecido. (sp-beta.trackernet.app:443)
